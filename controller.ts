@@ -1,50 +1,46 @@
-import fetchConfig from './.config/fetch.config.ts'
+import { FileDB, Document } from 'https://raw.githubusercontent.com/jswildcards/filedb/main/mod.ts';
 
-const { API } = fetchConfig;
-
-interface ITodo {
-  id: string;
-  text: string;
-  done: boolean;
+interface ITodo extends Document {
+  id?: string;
+  text?: string;
+  done?: boolean;
 }
 
-export const getTodos = async ({ response }: { response: any }) => {
-  const result = fetch(`${API}/todos`);
+const db = new FileDB({ rootDir: "./data", isAutosave: true });
+const todos = await db.getCollection<ITodo>('todos');
 
-  return result.then(res => {
-    response.status = res.status
-    return res.json();
-  }).then((jsonData) => {
-    response.body = jsonData
-  });
+export const getTodos = async ({ response }: { response: any }) => {
+  const todosFound = todos.findMany({});
+  if (todosFound) {
+    response.status = 200
+    response.body = todosFound
+  } else {
+    response.status = 200
+    response.body = []
+  }
 }
 
 export const getTodo = async ({ params, response }: { params: { id: string }; response: any }) => {
-  const result = fetch(`${API}/todos/${params.id}`);
+  const { id } = params;
+  const todo = todos.findOne({ id });
   
-  return result.then(res => {
-    response.status = res.status
-    return res.json();
-  }).then((jsonData) => {
-    response.body = jsonData
-  });
+  if (todo) {
+    response.status = 200;
+    response.body = todo
+  } else {
+    response.status = 404;
+    response.body = { error: 'Todo not found' }
+  }
 }
 
 export const addTodo = async ({ request, response }: { request: any, response: any }) => {
-  const body = await request.body()
-  const todo: ITodo = body.value;
-  const result = fetch(`${API}/todos`, {
-    method: 'POST',
-    body: JSON.stringify(todo)
-  });
-  
-  return result.then(res => {
-    response.status = res.status
-    return res.json();
-  }).then((jsonData) => {
-    response.body = jsonData
-  }).catch((error) => {
-    console.error(error)
-    response.body = error
-  });
+  try {
+    const todoInsert = request.body({ type: 'json' });
+    const todo = await todos.insertOne(await todoInsert.value);
+    response.status = 201
+    response.body = todo
+  } catch {
+    response.status = 500
+    response.body = { error: 'Internal server error' }
+  }
 }
