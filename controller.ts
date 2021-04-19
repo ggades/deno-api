@@ -16,9 +16,12 @@ export const getTodos = async ({ response }: { response: any }) => {
   const todos = await getTodosCollection()
   const todosFound = todos.findMany({})
 
-  if (todosFound) {
+  // gambiarra to send only the 'newData' node on response
+  const parsedTodos = JSON.parse(JSON.stringify(todosFound))
+
+  if (parsedTodos?.newData) {
     response.status = 200
-    response.body = todosFound
+    response.body = parsedTodos.newData
   } else {
     response.status = 200
     response.body = []
@@ -26,9 +29,9 @@ export const getTodos = async ({ response }: { response: any }) => {
 }
 
 export const getTodo = async ({ params, response }: { params: { id: string }, response: any }) => {
-  const { id } = params;
+  const { id } = params
   const todos = await getTodosCollection()
-  const todo = todos.findOne({ id });
+  const todo = todos.findOne({ id })
 
   try {
     if (todo) {
@@ -59,7 +62,7 @@ export const addTodo = async ({ request, response }: { request: any, response: a
 }
 
 export const deleteTodo = async ({ params, response }: { params: { id: string }, response: any }) => {
-  const { id } = params;
+  const { id } = params
   const todos = await getTodosCollection()
 
   try {

@@ -9,7 +9,6 @@ To run it locally:
 `denon run --allow-net --allow-read --allow-write app.ts`
 
 ## Routes
-<br>
 
 ### GET
 
