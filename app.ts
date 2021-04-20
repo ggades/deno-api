@@ -8,13 +8,11 @@ const argPort = parse(args).port;
 const PORT = argPort ? Number(argPort) : 8000
 const app = new Application()
 
+app.use(oakCors({
+  origin: 'http://localhost:3000'
+}));
 app.use(router.routes())
 app.use(router.allowedMethods())
-app.use(
-  oakCors({
-    origin: 'http://localhost:3000'
-  }),
-);
 
 console.log(`Listening on port ${PORT} ...`)
 await app.listen({ port: PORT })
