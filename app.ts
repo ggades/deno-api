@@ -9,7 +9,7 @@ const PORT = argPort ? Number(argPort) : 8000
 const app = new Application()
 
 app.use(oakCors({
-  origin: 'http://localhost:3000'
+  origin: ['https://react-context-typescript.herokuapp.com', 'http://localhost:3000']
 }));
 app.use(router.routes())
 app.use(router.allowedMethods())
