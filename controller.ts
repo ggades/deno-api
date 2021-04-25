@@ -68,11 +68,31 @@ export const deleteTodo = async ({ params, response }: { params: { id: string },
   try {
     if(!id) {
       response.status = 400
-      response.body = 'Todo id no sent'
+      response.body = 'Todo id not sent'
     } else {
       await todos.deleteOne({ id });
       response.status = 200
       response.body = { message: 'Todo successfully deleted' }
+    }
+  } catch {
+    response.status = 500
+    response.body = { error: 'Internal server error' }
+  }
+}
+
+export const updateTodo = async ({ params, request, response }: { params: { id: string }, request: any, response: any }) => {
+  const { id } = params
+  const todos = await getTodosCollection()
+
+  try {
+    if(!id) {
+      response.status = 400
+      response.body = 'Todo id not sent'
+    } else {
+      const updatedData = request.body({ type: 'json' });
+      await todos.updateOne({ id }, await updatedData.value);
+      response.status = 200
+      response.body = { message: 'Todo successfully updated' }
     }
   } catch {
     response.status = 500
